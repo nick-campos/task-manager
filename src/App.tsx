@@ -1,9 +1,26 @@
-import './App.css'
+import { useAuth } from "./hooks/useAuth";
+import Auth from "./pages/Auth";
 
 function App() {
-  return ( 
-    <div className='flex items-center justify-center h-screen bg-gray-100'>
-      <h1 className='text-3xl font-bold text-gray-800'>Task Manager</h1>
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">
+          Carregando...
+        </p>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <Auth />
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-gray-800"> Bem Vindo {user.email}</p>
     </div>
   )
 }

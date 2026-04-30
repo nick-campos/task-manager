@@ -14,7 +14,7 @@ interface AuthContextType {
 // Aqui foi criado o canal global — os componentes vão acessar os dados de autenticação
 export const AuthContext = createContext<AuthContextType | null>(null)
 
-// É o componente que ENVOLVE o app inteiro tudo que estiver dentro dele pode acessar os dados de auth.
+// É o componente que envolve o app inteiro tudo que estiver dentro dele pode acessar os dados de auth.
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Duas variáveis reativas que o Provider controla quando mudam, todos os componentes que as usam re-renderizam
     const [user, setUser] = useState<User | null>(null)
