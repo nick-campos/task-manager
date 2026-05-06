@@ -1,7 +1,7 @@
 export type TaskStatus = 'pending' | 'in_progress' | 'done'
 export type TaskPriority = 'low' | 'medium' | 'high'
 
-export interface Tasks {
+export interface Task {
     id: string
     user_id: string
     title: string
