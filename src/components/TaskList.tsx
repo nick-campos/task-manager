@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
-import type { Task } from '../types'
+import type { Task, TaskStatus, TaskPriority } from '../types'
 import { getTasks, deleteTask, updateTask } from '../services/taskService'
 
 interface TaskListProps {
     refresh: number //Quando esse número muda, o useEffect dispara novamente e recarrega a lista.
+    statusFilter: TaskStatus | 'all'
+    priorityFilter: TaskPriority | 'all'
 }
 
-function TaskList({ refresh }: TaskListProps) {
+function TaskList({ refresh, statusFilter, priorityFilter }: TaskListProps) {
     const [tasks, setTasks] = useState<Task[]>([])
     const [loading, setLoading] = useState(true)
     const[editingId, setEditingId] = useState<string | null>(null) //guarda o id da tarefa que está sendo editada.
@@ -62,9 +64,17 @@ function TaskList({ refresh }: TaskListProps) {
     if (loading) return <p className='text-gray-500 text-sm'>Carregando tarefas...</p>
     if (tasks.length === 0) return <p className='text-gray-500 text-sm'>Nenhuma tarefa criada.</p>
 
+    const filteredTasks = tasks.filter(task => {
+        const matchStatus = statusFilter === 'all' || task.status === statusFilter
+        const matchPriority = priorityFilter === 'all' || task.priority === priorityFilter
+        return matchStatus && matchPriority //a tarefa só aparece se passar nos dois filtros ao mesmo tempo.
+    })
+
+    if (filteredTasks.length === 0) return <p className='text-gray-500 text-sm'>Nenhuma tarefa encontrada.</p> 
+
     return (
-  <div className="flex flex-col gap-4">
-    {tasks.map(task => (
+    <div className="flex flex-col gap-4">
+    {filteredTasks.map(task => ( //cria uma lista derivada aplicando os filtros.
       <div key={task.id} className="bg-white rounded-lg shadow-sm p-5">
         {editingId === task.id ? ( //verifica se esse card específico está em modo de edição. Se sim, mostra o formulário. Se não, mostra o card normal.
           // Modo edição
@@ -157,7 +167,7 @@ function TaskList({ refresh }: TaskListProps) {
         )}
       </div>
     ))}
-  </div>
+    </div>
 )
 }
 
