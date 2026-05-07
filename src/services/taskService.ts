@@ -16,10 +16,11 @@ export async function createTask(
     description: string | null, //reflete o banco, o campo é opcional, pode ser null
     priority: Task['priority'] //aproveitamos o tipo que já existe no Task
 ): Promise<Task> {
-    const { data, error } = await supabase
+    const { data: {user} } = await supabase.auth.getUser() // busca o usuário logado antes de inserir
+
+    const{ data, error } = await supabase
         .from('tasks')
-        .insert({title, description, priority}) //insere uma nova linha na tabela
-        .select()
+        .insert({title, description, priority, user_id: user!.id}) //passa o user_id explicitamente na inserção
         .single() //diz que esperamos exatamente um resultado, sem ele o Supabase retornaria um array
 
     if (error) throw error

@@ -11,6 +11,7 @@ function TaskForm({ onTaskCreated }: TaskFormProps) {
     const [description, setDescription] = useState('')
     const [priority, setPriority] = useState<TaskPriority>('medium') //o estado de prioridade já começa com 'medium' como valor padrão, refletindo o banco.
     const [error, setError] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
 
     const handleSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault()
