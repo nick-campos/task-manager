@@ -10,7 +10,7 @@ function Header() {
                     <span className='text-sm text-gray-500'>{user?.email}</span> 
                         <button
                             onClick={signOut} //Chama direto a função do contexto, sem precisar criar uma função intermediária.
-                            className='text-sm bg-blue-600 text-white px-3 py-2 rounded hover:bg-gray-600 transition-colors'>Logout</button>
+                            className='text-sm bg-blue-600 text-white px-3 py-2 rounded hover:bg-gray-600 transition-colors cursor-pointer'>Logout</button>
                 </div> 
         </header>
     )    

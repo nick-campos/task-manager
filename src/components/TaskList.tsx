@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Task } from '../types'
-import { getTasks, deleteTask } from '../services/taskService'
+import { getTasks, deleteTask, updateTask } from '../services/taskService'
 
 interface TaskListProps {
     refresh: number //Quando esse número muda, o useEffect dispara novamente e recarrega a lista.
@@ -9,6 +9,11 @@ interface TaskListProps {
 function TaskList({ refresh }: TaskListProps) {
     const [tasks, setTasks] = useState<Task[]>([])
     const [loading, setLoading] = useState(true)
+    const[editingId, setEditingId] = useState<string | null>(null) //guarda o id da tarefa que está sendo editada.
+    const [editTitle, setEditTitle] = useState('')
+    const [editDescription, setEditDescription] = useState('')
+    const [editPriority, setEditPriority] = useState<Task['priority']>('medium')
+    const [editStatus, setEditStatus] = useState<Task['status']>('pending')
 
     const handleDelete = async (id: string) => {
         try {
@@ -17,6 +22,32 @@ function TaskList({ refresh }: TaskListProps) {
         } catch (err) {
             console.error(err)
         }
+    }
+
+    const handleEditStart = (task: Task) => { //quando o usuário clica em editar, preenche os estados temporários com os valores atuais da tarefa
+        setEditingId(task.id)
+        setEditTitle(task.title)
+        setEditDescription(task.description || '')
+        setEditPriority(task.priority)
+        setEditStatus(task.status)
+    }
+
+    const handleEditSave = async (id: string) => { //salva as alterações no banco e atualiza o card na lista sem recarregar tudo
+        try {
+            const updated = await updateTask(id, {
+                title: editTitle,
+                description: editDescription || null,
+                priority: editPriority,
+                status: editStatus
+            })
+            setTasks(tasks.map(task => task.id === id ? updated : task)) //substitui só a tarefa editada.
+            setEditingId(null)
+        } catch (err) {
+            console.error(err)
+        }
+    }
+    const handleEditCancel = () => { //cancela a edição sem salvar
+        setEditingId(null)
     }
 
     useEffect(() => {
@@ -32,40 +63,102 @@ function TaskList({ refresh }: TaskListProps) {
     if (tasks.length === 0) return <p className='text-gray-500 text-sm'>Nenhuma tarefa criada.</p>
 
     return (
-        <div className='flex flex-col gap-4'>
-            {tasks.map(task => (
-                <div key={task.id} className='bg-white rounded-lg shadow-sm p-5'>
-                    <div className='flex items-center justify-between mb-2'>
-                        <h3 className='font-semibold text-gray-800'>{task.title}</h3>
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium
-                            ${task.priority === 'high' ? 'bg-red-100 text-red-600' :
-                            task.priority === 'medium' ? 'bg-yellow-100 text-yellow-600' :
-                            'bg-green-100 text-green-600'}`}>
-                                {task.priority === 'high' ? 'Alta' :
-                                task.priority === 'medium' ? 'Média' : 'Baixa'}
-                        </span>
-
-                        <button
-                        onClick={() => handleDelete(task.id)}
-                        className='text-xs bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500 transition-colors'
-                        >
-                            Excluir
-                        </button>
-                    </div>
-                    {task.description && (
-                        <p className='text-sm text-gray-500 mb-3'>{task.description}</p>
-                    )}
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium
-                        ${task.status === 'done' ? 'bg-green-100 text-green-600' :
-                        task.status === 'in_progress' ? 'bg-blue-100 text-blue-600' :
-                        'bg-gray-100 text-gray-600'}`}>
-                            {task.status === 'done' ? 'Concluída' :
-                            task.status === 'in_progress' ? 'Em progresso' : 'Pendente'}
-                    </span>
-                </div>
-            ))}
-        </div>
-    )
+  <div className="flex flex-col gap-4">
+    {tasks.map(task => (
+      <div key={task.id} className="bg-white rounded-lg shadow-sm p-5">
+        {editingId === task.id ? ( //verifica se esse card específico está em modo de edição. Se sim, mostra o formulário. Se não, mostra o card normal.
+          // Modo edição
+          <div className="flex flex-col gap-3">
+            <input
+              type="text"
+              value={editTitle}
+              onChange={e => setEditTitle(e.target.value)}
+              className="border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <textarea
+              value={editDescription}
+              onChange={e => setEditDescription(e.target.value)}
+              className="border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              rows={3}
+            />
+            <select
+              value={editPriority}
+              onChange={e => setEditPriority(e.target.value as Task['priority'])}
+              className="border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="low">Baixa prioridade</option>
+              <option value="medium">Média prioridade</option>
+              <option value="high">Alta prioridade</option>
+            </select>
+            <select
+              value={editStatus}
+              onChange={e => setEditStatus(e.target.value as Task['status'])}
+              className="border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="pending">Pendente</option>
+              <option value="in_progress">Em progresso</option>
+              <option value="done">Concluída</option>
+            </select>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleEditSave(task.id)}
+                className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors cursor-pointer"
+              >
+                Salvar
+              </button>
+              <button
+                onClick={handleEditCancel}
+                className="text-xs bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500 transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        ) : (
+          // Modo visualização
+          <>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-gray-800">{task.title}</h3>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  task.priority === 'high' ? 'bg-red-100 text-red-600' :
+                  task.priority === 'medium' ? 'bg-yellow-100 text-yellow-600' :
+                  'bg-green-100 text-green-600'
+                }`}>
+                  {task.priority === 'high' ? 'Alta' :
+                   task.priority === 'medium' ? 'Média' : 'Baixa'}
+                </span>
+                <button
+                  onClick={() => handleEditStart(task)}
+                  className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors cursor-pointer"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(task.id)}
+                  className="text-xs bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-600 transition-colors cursor-pointer"
+                >
+                  Deletar
+                </button>
+              </div>
+            </div>
+            {task.description && (
+              <p className="text-sm text-gray-500 mb-3 cursor-pointer">{task.description}</p>
+            )}
+            <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+              task.status === 'done' ? 'bg-green-100 text-green-600' :
+              task.status === 'in_progress' ? 'bg-blue-100 text-blue-600' :
+              'bg-gray-100 text-gray-600'
+            }`}>
+              {task.status === 'done' ? 'Concluída' :
+               task.status === 'in_progress' ? 'Em progresso' : 'Pendente'}
+            </span>
+          </>
+        )}
+      </div>
+    ))}
+  </div>
+)
 }
 
 export default TaskList

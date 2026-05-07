@@ -63,7 +63,7 @@ function TaskForm({ onTaskCreated }: TaskFormProps) {
                     <select 
                         value={priority}
                         onChange={e => setPriority(e.target.value as TaskPriority)} //o select retorna uma string genérica, mas os valores são sempre 'low', 'medium' ou 'high'
-                        className='border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        className='border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer'
                     >
                         <option value='low'>Baixa prioridade</option>
                         <option value='medium'>Média prioridade</option>
@@ -73,7 +73,7 @@ function TaskForm({ onTaskCreated }: TaskFormProps) {
                     <button 
                     type='submit'
                     disabled={loading}
-                    className='bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors'
+                    className='bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors cursor-pointer'
                     >
                         {loading ? 'Criando...' : 'Criar tarefa'}
                     </button>
