@@ -6,12 +6,13 @@ interface TaskListProps {
     refresh: number //Quando esse número muda, o useEffect dispara novamente e recarrega a lista.
     statusFilter: TaskStatus | 'all'
     priorityFilter: TaskPriority | 'all'
+    isDark: boolean
 }
 
-function TaskList({ refresh, statusFilter, priorityFilter }: TaskListProps) {
+function TaskList({ refresh, statusFilter, priorityFilter, isDark }: TaskListProps) {
     const [tasks, setTasks] = useState<Task[]>([])
     const [loading, setLoading] = useState(true)
-    const[editingId, setEditingId] = useState<string | null>(null) //guarda o id da tarefa que está sendo editada.
+    const [editingId, setEditingId] = useState<string | null>(null) //guarda o id da tarefa que está sendo editada.
     const [editTitle, setEditTitle] = useState('')
     const [editDescription, setEditDescription] = useState('')
     const [editPriority, setEditPriority] = useState<Task['priority']>('medium')
@@ -73,28 +74,27 @@ function TaskList({ refresh, statusFilter, priorityFilter }: TaskListProps) {
     if (filteredTasks.length === 0) return <p className='text-gray-500 text-sm'>Nenhuma tarefa encontrada.</p> 
 
     return (
-    <div className="flex flex-col gap-4">
-    {filteredTasks.map(task => ( //cria uma lista derivada aplicando os filtros.
-      <div key={task.id} className="bg-white rounded-lg shadow-sm p-5">
-        {editingId === task.id ? ( //verifica se esse card específico está em modo de edição. Se sim, mostra o formulário. Se não, mostra o card normal.
-          // Modo edição
+    <div className="flex flex-col gap-4" style={{marginTop: '12px'}}>
+      {filteredTasks.map(task => (
+      <div key={task.id} className={`rounded-lg shadow-sm p-5 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+        {editingId === task.id ? (
           <div className="flex flex-col gap-3">
             <input
               type="text"
               value={editTitle}
               onChange={e => setEditTitle(e.target.value)}
-              className="border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'}`}
             />
             <textarea
               value={editDescription}
               onChange={e => setEditDescription(e.target.value)}
-              className="border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className={`border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'}`}
               rows={3}
             />
             <select
               value={editPriority}
               onChange={e => setEditPriority(e.target.value as Task['priority'])}
-              className="border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'}`}
             >
               <option value="low">Baixa prioridade</option>
               <option value="medium">Média prioridade</option>
@@ -103,7 +103,7 @@ function TaskList({ refresh, statusFilter, priorityFilter }: TaskListProps) {
             <select
               value={editStatus}
               onChange={e => setEditStatus(e.target.value as Task['status'])}
-              className="border border-gray-300 rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'}`}
             >
               <option value="pending">Pendente</option>
               <option value="in_progress">Em progresso</option>
@@ -125,10 +125,9 @@ function TaskList({ refresh, statusFilter, priorityFilter }: TaskListProps) {
             </div>
           </div>
         ) : (
-          // Modo visualização
           <>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-semibold text-gray-800">{task.title}</h3>
+              <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>{task.title}</h3>
               <div className="flex items-center gap-2">
                 <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                   task.priority === 'high' ? 'bg-red-100 text-red-600' :
@@ -146,14 +145,14 @@ function TaskList({ refresh, statusFilter, priorityFilter }: TaskListProps) {
                 </button>
                 <button
                   onClick={() => handleDelete(task.id)}
-                  className="text-xs bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-600 transition-colors cursor-pointer"
+                  className="text-xs bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-500 transition-colors cursor-pointer"
                 >
                   Deletar
                 </button>
               </div>
             </div>
             {task.description && (
-              <p className="text-sm text-gray-500 mb-3 cursor-pointer">{task.description}</p>
+              <p className={`text-sm mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{task.description}</p>
             )}
             <span className={`text-xs px-2 py-1 rounded-full font-medium ${
               task.status === 'done' ? 'bg-green-100 text-green-600' :
@@ -167,7 +166,7 @@ function TaskList({ refresh, statusFilter, priorityFilter }: TaskListProps) {
         )}
       </div>
     ))}
-    </div>
+  </div>
 )
 }
 

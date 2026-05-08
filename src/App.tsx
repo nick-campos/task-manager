@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from './hooks/useAuth'
+import { useTheme } from './hooks/useTheme'
 import Auth from './pages/Auth'
 import Header from './components/header'
 import TaskForm from './components/TaskForm'
@@ -9,6 +10,7 @@ import type { TaskPriority, TaskStatus } from './types'
 
 function App() {
   const { user, loading } = useAuth()
+  const {isDark, toggleTheme} = useTheme() //traz o estado do tema e a função de alternar para o App
   const [refresh, setRefresh] = useState(0)
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all')
   const [priorityFilter, setPriorityFilter] = useState<TaskPriority | 'all'>('all')
@@ -26,26 +28,27 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      <Header />
-      <main className="flex flex-col items-center w-full p-8">
-        <div className="w-full max-w-4xl">
-          <TaskForm onTaskCreated={() => setRefresh(r => r + 1)} />
-          <div style={{ marginTop: '24px' }}>
-            <TaskFilters
-              status={statusFilter}
-              priority={priorityFilter}
-              onStatusChange={(value) => setStatusFilter(value)}
-              onPriorityChange={(value) => setPriorityFilter(value)}
+    <div className={`min-h-screen flex flex-col ${isDark ? 'bg-gray-900' : 'bg-gray-100'}`}> 
+      <Header isDark={isDark} toggleTheme={toggleTheme} />
+      <main className='flex flex-col items-center w-full p-8'>
+        <div className='w-full max-w-4x1'>
+          <TaskForm onTaskCreated={() => setRefresh(r => r + 1)} isDark={isDark} />
+            <div style={{marginTop: '24px'}}>
+              <TaskFilters 
+                status={statusFilter}
+                priority={priorityFilter}
+                onStatusChange={(value) => setStatusFilter(value)}
+                onPriorityChange={(value) => setPriorityFilter(value)}
+                isDark={isDark}
+              /> 
+            </div> 
+
+            <TaskList 
+              refresh={refresh}
+              statusFilter={statusFilter}
+              priorityFilter={priorityFilter}
+              isDark={isDark}
             />
-          </div>
-          <div style={{ marginTop: '18px' }}>
-          <TaskList
-            refresh={refresh}
-            statusFilter={statusFilter}
-            priorityFilter={priorityFilter}
-          />
-          </div>
         </div>
       </main>
     </div>
