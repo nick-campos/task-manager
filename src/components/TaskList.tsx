@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Task, TaskStatus, TaskPriority } from '../types'
 import { getTasks, deleteTask, updateTask } from '../services/taskService'
+import { supabase } from '../lib/supabase';
 
 interface TaskListProps {
     refresh: number //Quando esse número muda, o useEffect dispara novamente e recarrega a lista.
@@ -60,7 +61,24 @@ function TaskList({ refresh, statusFilter, priorityFilter, isDark }: TaskListPro
                 setLoading(false)
             })
             .catch(() => setLoading(false))
-    }, [refresh]) //O efeito roda toda vez que refresh mudar.
+
+            //Abre um canal realtime escutndo mudanças na tabela tasks
+            const channel = supabase
+              .channel('tasks-changes') //Cria um canal WebSocket com o nome tasks-changes.
+              .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'tasks' }, //escuta todos os eventos, insert, update e delete.
+                () => {
+                  getTasks().then(data => setTasks(data)) //toda vez que algo muda na tabela, busca as tarefas atualizadas.
+                }
+              )
+              .subscribe()
+
+              //Cancela a assinatura quando o componente desmonta
+              return () => {
+                supabase.removeChannel(channel) // cleanup, fecha o WebSocket quando o componente desmonta.
+              }
+            }, [refresh])
 
     if (loading) return <p className='text-gray-500 text-sm'>Carregando tarefas...</p>
     if (tasks.length === 0) return <p className='text-gray-500 text-sm'>Nenhuma tarefa criada.</p>
