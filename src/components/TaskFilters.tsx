@@ -10,7 +10,7 @@ interface TaskFiltersProps {
 
 function TaskFilters({ status, priority, onStatusChange, onPriorityChange, isDark }: TaskFiltersProps) {
   return (
-    <div className={`rounded-lg shadow-sm p-4 mb-6 flex flex-wrap gap-4 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+    <div className={`rounded-2xl p-4 mb-6 flex flex-wrap gap-4 backdrop-blur-md border ${isDark ? 'bg-white/5 border-white/10 shadow-xl' : 'bg-white/60 border-white/80 shadow-lg'}`}>
       <div className="flex flex-col gap-1">
         <label className={`text-xs font-medium ${isDark ? 'text-gray-300' : 'text-gray-500'}`}>Status</label>
         <select

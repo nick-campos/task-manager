@@ -9,7 +9,7 @@ function Header({ isDark, toggleTheme }: HeaderProps) {
     const { user, signOut } = useAuth() //Busca o usuário logado e a função de logout direto do contexto que foi criado.
 
     return (
-        <header style={{padding: '16px 64px'}} className={`w-full shadow-sm flex items-center justify-between ?{isDark ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+        <header style={{padding: '16px 64px'}} className={`w-full flex items-center justify-between backdrop-blur-md border-b ${isDark ? 'bg-white/5 border-white/10 text-white' : 'bg-white/60 border-white/80 text-gray-800'}`}>
             <h1 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-gray-800'}`}>Task Manager</h1>
                 <div className='flex items-center gap-4'>
                     <span className='text-sm text-gray-500'>{user?.email}</span> 

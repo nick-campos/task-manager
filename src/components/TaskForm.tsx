@@ -37,7 +37,7 @@ function TaskForm({ onTaskCreated, isDark }: TaskFormProps) {
     }
 
     return (
-    <div className={`rounded-lg shadow-sm p-6 mb-6 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+    <div className={`rounded-2xl p-6 mb-6 backdrop-blur-md border ${isDark ? 'bg-white/5 border-white/10 shadow-xl' : 'bg-white/60 border-white/80 shadow-lg'}`}>
       <h2 className={`text-lg font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>Nova Tarefa</h2>
 
       {error && (

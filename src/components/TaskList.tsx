@@ -76,7 +76,7 @@ function TaskList({ refresh, statusFilter, priorityFilter, isDark }: TaskListPro
     return (
     <div className="flex flex-col gap-4" style={{marginTop: '12px'}}>
       {filteredTasks.map(task => (
-      <div key={task.id} className={`rounded-lg shadow-sm p-5 ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
+      <div key={task.id} className={`rounded-2xl p-5 backdrop-blur-md border ${isDark ? 'bg-white/5 border-white/10 shadow-xl' : 'bg-white/60 border-white/80 shadow-lg'}`}>
         {editingId === task.id ? (
           <div className="flex flex-col gap-3">
             <input

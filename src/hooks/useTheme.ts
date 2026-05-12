@@ -1,9 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function useTheme() {
-    const[isDark, setIsDark] = useState(false) //guarda se o tema atual é escuro ou claro.
+    const[isDark, setIsDark] = useState(() => { //Inicializa o estado lendo o localStorage. Se o usuário já escolheu dark, começa dark.
+        return localStorage.getItem('theme') === 'dark'
+})
 
-    const toggleTheme = () => setIsDark(prev => !prev) //alterna entre os dois. 
+    useEffect (() => { //toda vez que isDark muda, salva no localStorage. Assim persiste entre sessões.
+        localStorage.setItem('theme', isDark ? 'dark' : 'light')
+    }, [isDark])
+
+    const toggleTheme = () => setIsDark(prev => !prev) //Alterna entre os dois. 
 
     return { isDark, toggleTheme }
 }

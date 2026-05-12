@@ -24,11 +24,11 @@ function App() {
   }
 
   if (!user) {
-    return <Auth />
+    return <Auth isDark={isDark} />
   }
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDark ? 'bg-gray-900' : 'bg-gray-100'}`}> 
+    <div className={`min-h-screen flex flex-col ${isDark ? 'bg-zinc-900' : 'bg-slate-200'}`}> 
       <Header isDark={isDark} toggleTheme={toggleTheme} />
       <main className='flex flex-col items-center w-full p-8'>
         <div className='w-full max-w-4x1'>
