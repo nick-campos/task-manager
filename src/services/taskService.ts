@@ -1,5 +1,5 @@
 import {supabase} from '../lib/supabase'
-import type { Task  } from '../types'
+import type { Task } from '../types'
 
 export async function getTasks(): Promise<Task[]> {
     const {data, error} = await supabase
@@ -14,14 +14,18 @@ export async function getTasks(): Promise<Task[]> {
 export async function createTask(
     title: string,
     description: string | null, //reflete o banco, o campo é opcional, pode ser null
-    priority: Task['priority'] //aproveitamos o tipo que já existe no Task
+    priority: Task['priority'], //aproveitamos o tipo que já existe no Task
+    teamId: string | null,
+    assignedTo: string | null
 ): Promise<Task> {
     const { data: {user} } = await supabase.auth.getUser() // busca o usuário logado antes de inserir
 
     const{ data, error } = await supabase
         .from('tasks')
-        .insert({title, description, priority, user_id: user!.id}) //passa o user_id explicitamente na inserção
+        .insert({title, description, priority, user_id: user!.id, team_id: teamId, assigned_to: assignedTo}) //passa o user_id explicitamente na inserção
+        .select()
         .single() //diz que esperamos exatamente um resultado, sem ele o Supabase retornaria um array
+        
 
     if (error) throw error
     return data

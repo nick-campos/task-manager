@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
-import type { Task, TaskStatus, TaskPriority } from '../types'
+import type { Task, TaskStatus, TaskPriority, Profile, Team } from '../types'
 import { getTasks, deleteTask, updateTask } from '../services/taskService'
 import { supabase } from '../lib/supabase';
+import { getMyTeams, getTeamMembers } from '../services/teamService';
 
 interface TaskListProps {
     refresh: number //Quando esse número muda, o useEffect dispara novamente e recarrega a lista.
     statusFilter: TaskStatus | 'all'
     priorityFilter: TaskPriority | 'all'
-    isDark: boolean
+    assignedToFIlter: string | 'all' //recebe o filtro de responsável do App.tsx
+    onProfilesLoaded: (profiles: Record<string, Profile>) => void // callback para avisar o App.tsx quando os perfis forem carregados, para repassar ao TaskFilters
 }
 
-function TaskList({ refresh, statusFilter, priorityFilter, isDark }: TaskListProps) {
+function TaskList({ refresh, statusFilter, priorityFilter, assignedToFIlter, onProfilesLoaded, isDark }: TaskListProps) {
     const [tasks, setTasks] = useState<Task[]>([])
     const [loading, setLoading] = useState(true)
     const [editingId, setEditingId] = useState<string | null>(null) //guarda o id da tarefa que está sendo editada.
@@ -18,6 +20,9 @@ function TaskList({ refresh, statusFilter, priorityFilter, isDark }: TaskListPro
     const [editDescription, setEditDescription] = useState('')
     const [editPriority, setEditPriority] = useState<Task['priority']>('medium')
     const [editStatus, setEditStatus] = useState<Task['status']>('pending')
+    const [profiles, setProfiles] = useState<Record<string, Profile>>({})
+    const [teamsMap, setTeamsMap] = useState<Record<string, Team>>({})
+    //Record<string, Tipo> para acesso rápido por id
 
     const handleDelete = async (id: string) => {
         try {
@@ -80,13 +85,41 @@ function TaskList({ refresh, statusFilter, priorityFilter, isDark }: TaskListPro
               }
             }, [refresh])
 
+    //Carrega todos os times uma vez quando o componente monta
+    useEffect(() => {
+      getMyTeams().then(data => {
+        const map: Record<string,Team> = {}
+        data.forEach(team => {map[team.id] = team })
+        setTeamsMap(map)
+      })
+    })
+
+    //Para carregar os perfis dos responsáveis a partir das tarefas
+    useEffect(() => {
+      if (tasks.length === 0) return
+
+      const teamIds = [...new Set(tasks.map(t => t.team_id).filter(Boolean))] as string[]
+
+      teamIds.forEach(teamId => {
+        getTeamMembers(teamId).then(data => {
+        setProfiles(prev => {
+          const updated = {...prev}
+          data.forEach(m => {updated[m.user_id] = m.profile})
+          onProfilesLoaded(updated) //chamado sempre que os perfis são atualizados, repassando o dicionário atualizado para o App.tsx
+          return updated
+        })
+      })
+    })
+  }, [tasks])
+
     if (loading) return <p className='text-gray-500 text-sm'>Carregando tarefas...</p>
     if (tasks.length === 0) return <p className='text-gray-500 text-sm'>Nenhuma tarefa criada.</p>
 
     const filteredTasks = tasks.filter(task => {
         const matchStatus = statusFilter === 'all' || task.status === statusFilter
         const matchPriority = priorityFilter === 'all' || task.priority === priorityFilter
-        return matchStatus && matchPriority //a tarefa só aparece se passar nos dois filtros ao mesmo tempo.
+        const matchAssinedTo = assignedToFIlter === 'all' || task.assigned_to === assignedToFIlter
+        return matchStatus && matchPriority && matchAssinedTo //a tarefa só aparece se passar nos dois filtros ao mesmo tempo.
     })
 
     if (filteredTasks.length === 0) return <p className='text-gray-500 text-sm'>Nenhuma tarefa encontrada.</p> 
@@ -180,6 +213,18 @@ function TaskList({ refresh, statusFilter, priorityFilter, isDark }: TaskListPro
               {task.status === 'done' ? 'Concluída' :
                task.status === 'in_progress' ? 'Em progresso' : 'Pendente'}
             </span>
+
+            {task.team_id && teamsMap [task.team_id] && (
+              <p className={`text-xs mt-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                🏷️ Time: <span className='font-medium'>{teamsMap[task.team_id].name}</span>
+              </p>
+            )}
+
+            {task.assigned_to && profiles[task.assigned_to] && (
+              <p className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                👤 Responsável: <span className='font-medium'>{profiles[task.assigned_to].name}</span>
+              </p>
+            )}
           </>
         )}
       </div>

@@ -1,0 +1,1 @@
+import '@testing-library/jest-dom' //Esse arquivo roda antes de todos os testes

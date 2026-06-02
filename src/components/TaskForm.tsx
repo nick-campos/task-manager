@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
-import type { TaskPriority } from '../types'
+import React, { useState, useEffect } from 'react'
+import type { TaskPriority, Team, Profile } from '../types'
 import { createTask } from '../services/taskService'
+import { getMyTeams, getTeamMembers } from '../services/teamService'
 
 interface TaskFormProps { //define o que o componente espera receber
     onTaskCreated: () => void //é uma função que não recebe nada e não retorna nada. Só dispara um evento para o componente pai
@@ -13,6 +14,26 @@ function TaskForm({ onTaskCreated, isDark }: TaskFormProps) {
     const [priority, setPriority] = useState<TaskPriority>('medium') //o estado de prioridade já começa com 'medium' como valor padrão, refletindo o banco.
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
+    const [teams, setTeams] = useState<Team[]>([])
+    const [members, setMembers] = useState<Profile[]>([])
+    const[teamId, setTeamId] = useState<string | null>(null)
+    const [assignedTo, setAssignedTo] = useState<string | null>(null)
+
+    useEffect(() => {
+      getMyTeams().then(setTeams)
+    }, [])
+
+    useEffect(() => {
+      if (!teamId) return
+
+        getTeamMembers(teamId).then(data => {
+        setMembers(data.map(m => m.profile))
+      })
+      return () => {
+        setMembers([])
+        setAssignedTo(null)
+      }
+    }, [teamId])
 
     const handleSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault()
@@ -20,10 +41,12 @@ function TaskForm({ onTaskCreated, isDark }: TaskFormProps) {
         setLoading(true)
 
         try {
-            await createTask(title, description || null, priority) //se a descrição estiver vazia, manda null para o banco.
+            await createTask(title, description || null, priority, teamId, assignedTo) //se a descrição estiver vazia, manda null para o banco.
             setTitle('')
             setDescription('')
             setPriority('medium') //limpa o formulário após criar a tarefa.
+            setTeamId(null)
+            setAssignedTo(null)
             onTaskCreated() //avisa o componente pai que uma tarefa foi criada e ele precisa atualizar a lista.
         } catch (err: unknown) {
             if (err instanceof Error) {
@@ -69,6 +92,30 @@ function TaskForm({ onTaskCreated, isDark }: TaskFormProps) {
           <option value="medium">Média prioridade</option>
           <option value="high">Alta prioridade</option>
         </select>
+
+        <select
+          value={teamId ?? ''}
+          onChange={e => setTeamId(e.target.value || null)}
+          className={`border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'}`}
+        >
+          <option value="">Sem equipe</option>
+          {teams.map(team => (
+            <option key={team.id} value={team.id}>{team.name}</option>
+          ))}
+        </select>
+
+        <select
+          value={assignedTo ?? ''}
+          onChange={e => setAssignedTo(e.target.value || null)}
+          disabled={!teamId}
+          className={`border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-800'} disabled:opacity-50`}
+        >
+          <option value="">Sem responsável</option>
+          {members.map(member => (
+            <option key={member.id} value={member.id}>{member.name}</option>
+          ))}
+        </select>
+
         <button
           type="submit"
           disabled={loading}
