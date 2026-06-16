@@ -3,7 +3,7 @@ import { mockSupabase } from '../test/mocks/supabase'
 import { getMyTeams, createTeam } from '../services/teamService'
 
 //Acontece a troca do supabase para o mockSupabase, quando solicitado
-vi.mock('@/lib/supabase', () => ({
+vi.mock('../lib/supabase', () => ({
     supabase: mockSupabase
 }))
 

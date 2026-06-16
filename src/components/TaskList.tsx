@@ -8,8 +8,9 @@ interface TaskListProps {
     refresh: number //Quando esse número muda, o useEffect dispara novamente e recarrega a lista.
     statusFilter: TaskStatus | 'all'
     priorityFilter: TaskPriority | 'all'
-    assignedToFIlter: string | 'all' //recebe o filtro de responsável do App.tsx
-    onProfilesLoaded: (profiles: Record<string, Profile>) => void // callback para avisar o App.tsx quando os perfis forem carregados, para repassar ao TaskFilters
+    isDark: boolean
+    assignedToFIlter?: string | 'all' //recebe o filtro de responsável do App.tsx
+    onProfilesLoaded?: (profiles: Record<string, Profile>) => void // callback para avisar o App.tsx quando os perfis forem carregados, para repassar ao TaskFilters
 }
 
 function TaskList({ refresh, statusFilter, priorityFilter, assignedToFIlter, onProfilesLoaded, isDark }: TaskListProps) {
@@ -105,7 +106,7 @@ function TaskList({ refresh, statusFilter, priorityFilter, assignedToFIlter, onP
         setProfiles(prev => {
           const updated = {...prev}
           data.forEach(m => {updated[m.user_id] = m.profile})
-          onProfilesLoaded(updated) //chamado sempre que os perfis são atualizados, repassando o dicionário atualizado para o App.tsx
+          onProfilesLoaded?.(updated) //chamado sempre que os perfis são atualizados, repassando o dicionário atualizado para o App.tsx
           return updated
         })
       })

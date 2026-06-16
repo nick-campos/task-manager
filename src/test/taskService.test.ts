@@ -4,8 +4,8 @@ vi.mock('@/lib/supabase', () => ({
     supabase: mockSupabase
 }))
 
-import { mockSupabase } from '@/test/mocks/supabase'
-import { getTasks, createTask, deleteTask } from '@/services/taskService'
+import { mockSupabase } from '../test/mocks/supabase'
+import { getTasks, createTask, deleteTask } from '../services/taskService'
 
 describe('taskService', () => {
 
