@@ -21,7 +21,7 @@ function Header({ isDark, toggleTheme, onNavigate }: HeaderProps) {
 
     return (
         <header style={{padding: '16px 64px'}} className={`w-full flex items-center justify-between backdrop-blur-md border-b ${headerStyle}`}>
-            <h1 className={`text-lg font-bold ${titleStyle}`}>Task Manager</h1>
+            <h1 className={`text-lg font-bold ${titleStyle}`}>To Do Task</h1>
                 <div className='flex items-center gap-4'>
 
                     <button

@@ -84,7 +84,7 @@ function TaskList({ refresh, statusFilter, priorityFilter, assignedToFIlter, onP
               return () => {
                 supabase.removeChannel(channel) // cleanup, fecha o WebSocket quando o componente desmonta.
               }
-            }, [refresh])
+            }, [refresh, statusFilter])
 
     //Carrega todos os times uma vez quando o componente monta
     useEffect(() => {
