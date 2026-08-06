@@ -9,11 +9,11 @@ interface TaskListProps {
     statusFilter: TaskStatus | 'all'
     priorityFilter: TaskPriority | 'all'
     isDark: boolean
-    assignedToFIlter?: string | 'all' //recebe o filtro de responsável do App.tsx
+    assignedToFilter?: string | 'all' //recebe o filtro de responsável do App.tsx
     onProfilesLoaded?: (profiles: Record<string, Profile>) => void // callback para avisar o App.tsx quando os perfis forem carregados, para repassar ao TaskFilters
 }
 
-function TaskList({ refresh, statusFilter, priorityFilter, assignedToFIlter, onProfilesLoaded, isDark }: TaskListProps) {
+function TaskList({ refresh, statusFilter, priorityFilter, assignedToFilter, onProfilesLoaded, isDark }: TaskListProps) {
     const [tasks, setTasks] = useState<Task[]>([])
     const [loading, setLoading] = useState(true)
     const [editingId, setEditingId] = useState<string | null>(null) //guarda o id da tarefa que está sendo editada.
@@ -119,7 +119,7 @@ function TaskList({ refresh, statusFilter, priorityFilter, assignedToFIlter, onP
     const filteredTasks = tasks.filter(task => {
         const matchStatus = statusFilter === 'all' || task.status === statusFilter
         const matchPriority = priorityFilter === 'all' || task.priority === priorityFilter
-        const matchAssinedTo = assignedToFIlter === 'all' || task.assigned_to === assignedToFIlter
+        const matchAssinedTo = assignedToFilter === 'all' || task.assigned_to === assignedToFilter
         return matchStatus && matchPriority && matchAssinedTo //a tarefa só aparece se passar nos dois filtros ao mesmo tempo.
     })
 
