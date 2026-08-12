@@ -44,7 +44,7 @@ function App() {
     <div className={`min-h-screen flex flex-col ${isDark ? 'bg-zinc-900' : 'bg-slate-200'}`}> 
       <Header isDark={isDark} toggleTheme={toggleTheme} onNavigate={setPage} />
       <main className='flex flex-col items-center w-full p-8'>
-        <div className='w-full max-w-4x1'>
+        <div className='w-full max-w-7xl'>
           <TaskForm onTaskCreated={() => setRefresh(r => r + 1)} isDark={isDark} />
             <div style={{marginTop: '24px'}}>
               <TaskFilters 

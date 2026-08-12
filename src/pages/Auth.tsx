@@ -40,7 +40,7 @@ function Auth({ isDark }: AuthProps) {
     return (
   <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-zinc-900' : 'bg-slate-200'}`}>
     <div className={`p-8 rounded-2xl w-full max-w-md backdrop-blur-md border ${isDark ? 'bg-white/5 border-white/10 shadow-xl' : 'bg-white/60 border-white/80 shadow-lg'}`}>
-      <h1 className={`text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+      <h1 className={`text-2xl py-4 font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-800'}`}>
         {isLogin ? 'Entrar' : 'Criar conta'}
       </h1>
       {error && (
@@ -71,7 +71,7 @@ function Auth({ isDark }: AuthProps) {
           {loading ? 'Aguarde...' : isLogin ? 'Entrar' : 'Criar conta'}
         </button>
       </form>
-      <p className={`text-sm mt-4 text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+      <p className={`text-sm mt-4 py-4 text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
         {isLogin ? 'Não tem conta?' : 'Já tem conta?'}
         <button
           onClick={() => setIsLogin(!isLogin)}

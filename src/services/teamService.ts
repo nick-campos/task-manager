@@ -36,7 +36,7 @@ export async function createTeam(name: string): Promise<Team> {
 export async function getTeamMembers(teamId: string): Promise<(TeamMember & {profile : Profile})[]> {
     const { data, error } = await supabase
         .from('team_members')
-        .select('*, profile: profile(*)')
+        .select('*, profile: profiles(*)')
         .eq('team_id', teamId)
 
     if (error) throw error

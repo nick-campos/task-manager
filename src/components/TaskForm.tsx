@@ -16,7 +16,7 @@ function TaskForm({ onTaskCreated, isDark }: TaskFormProps) {
     const [loading, setLoading] = useState(false)
     const [teams, setTeams] = useState<Team[]>([])
     const [members, setMembers] = useState<Profile[]>([])
-    const[teamId, setTeamId] = useState<string | null>(null)
+    const [teamId, setTeamId] = useState<string | null>(null)
     const [assignedTo, setAssignedTo] = useState<string | null>(null)
 
     useEffect(() => {
